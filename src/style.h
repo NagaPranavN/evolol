@@ -1,0 +1,9 @@
+#ifndef STYLE_H_
+#define STYLE_H_
+
+#define BACKGROUND_COLOR 0x000000FF
+#define GRID_COLOR 0xFFFFFFFF
+#define WALL_COLOR (GRID_COLOR)
+#define AGENT_COLOR 0xFF499EFF
+
+#endif // STYLE_H_
