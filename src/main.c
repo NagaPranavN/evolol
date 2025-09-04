@@ -90,7 +90,6 @@ typedef struct{
   Env env;
   Action action;
   State  next_state;
-
 } Brain_Cell;
 
 typedef struct{
@@ -115,7 +114,7 @@ typedef struct{
 typedef struct{
   int pos_x;
   int pos_y;
-}Wall;
+} Wall;
 
 typedef struct{
   Agent agents[AGENTS_COUNT];
@@ -148,6 +147,7 @@ Food random_food(void){
   Food food = {0};
   food.pos_x = random_int_range(0, BOARD_WIDTH);
   food.pos_y = random_int_range(0, BOARD_HEIGHT);
+  food.eaten = 0;
   return food;
 }
 
@@ -241,7 +241,45 @@ void render_agent(SDL_Renderer *renderer, Agent agent)
 }
 
 void render_food(SDL_Renderer *renderer, Food food){
-  // TODO: implement food render
+ 
+  float center_x = (float) food.pos_x * CELL_WIDTH + CELL_WIDTH * 0.5f;
+  float center_y = (float) food.pos_y * CELL_WIDTH + CELL_WIDTH * 0.5f;
+  float radius = (CELL_WIDTH - 2.0f * AGENT_PADDING) / 3.0f;
+
+  uint32_t hex = FOOD_COLOR;
+  SDL_FColor food_color = {
+    (float) ((hex >> 24) & 0xFF) / 255.0f,
+    (float) ((hex >> 16) & 0xFF) / 255.0f,
+    (float) ((hex >> 8) & 0xFF) / 255.0f,
+    (float) (hex & 0xFF) / 255.0f
+  };
+
+  SDL_Vertex vertices[3];
+
+  for(int i = 0; i < 3; i++) {
+    vertices[i].color = food_color;
+    vertices[i].tex_coord = (SDL_FPoint){0.0f, 0.0f};
+  }
+  
+  int segments=20;
+  
+  for(int i =0; i < segments; ++i){
+    float angle1 = (2.0f * M_PI * i) / segments;
+    float angle2 = (2.0f * M_PI * (i + 1)) / segments;
+
+    float x1 = center_x + radius * cosf(angle1);
+    float y1 = center_y + radius * sin(angle1);
+
+    float x2 = center_x + radius * cosf(angle2);
+    float y2 = center_y + radius * sin(angle2);
+    
+    vertices[0].position = (SDL_FPoint){center_x, center_y};
+    vertices[1].position = (SDL_FPoint){x1, y1};
+    vertices[2].position = (SDL_FPoint){x2, y2};
+    
+    scr(SDL_RenderGeometry(renderer, NULL, vertices, 3, NULL, 0));
+   
+  }
 }
 
 void render_wall(SDL_Renderer *renderer, Wall wall){
